@@ -13,11 +13,8 @@ import {
 	getSortedRowModel,
 	useReactTable,
 } from "@tanstack/react-table";
-import {MoreVertical, User2} from "lucide-react";
-import {
-	SelectItem,
-	SelectValue,
-} from "@/components/ui/select";
+import {ChevronLeft, ChevronRight, MoreVertical, PencilLine, ScanEye, Trash, User2, UserCircle2} from "lucide-react";
+import {SelectItem, SelectLabel, SelectValue} from "@/components/ui/select";
 
 import {Button} from "@/components/ui/button";
 import {Checkbox} from "@/components/ui/checkbox";
@@ -30,14 +27,7 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {Input} from "@/components/ui/input";
-import {
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from "@/components/ui/table";
+import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
 import {cn} from "@/lib/utils";
 import CustomSelect from "./ui/custom-select";
 import UserIcon from "@/assets/user-id.svg";
@@ -89,12 +79,12 @@ const data: Schedule[] = [
 	},
 	{
 		id: "3",
-		account_name: "Colorado Department of Health Care Policy...",
+		account_name: "account 1",
 		patient_name: "John Smith",
 		driver: "John Doe",
 		status: "canceled",
 		pick_address: "781 Hilll Junctions Apt. 411",
-		drop_address: "781 Hilll Junctions Apt. 411",
+		drop_address: "Bagerhata",
 		pickup_time: "04:00 PM",
 		appointment_time: "05:30 PM",
 		drop_time: "08:12 PM",
@@ -103,7 +93,7 @@ const data: Schedule[] = [
 	},
 	{
 		id: "4",
-		account_name: "Colorado Department of Health Care Policy...",
+		account_name: "account 2",
 		patient_name: "John Smith",
 		driver: "John Smith",
 		status: "scheduled",
@@ -121,7 +111,7 @@ const data: Schedule[] = [
 		patient_name: "John Smith",
 		driver: "John Smith",
 		status: "upcoming",
-		pick_address: "781 Hilll Junctions Apt. 411",
+		pick_address: "Jamalpur",
 		drop_address: "781 Hilll Junctions Apt. 411",
 		pickup_time: "04:00 PM",
 		appointment_time: "05:30 PM",
@@ -131,6 +121,34 @@ const data: Schedule[] = [
 	},
 	{
 		id: "6",
+		account_name: "Colorado Department of Health Care Policy...",
+		patient_name: "John Smith",
+		driver: "John Doe",
+		status: "in progress",
+		pick_address: "781 Hilll Junctions Apt. 411",
+		drop_address: "781 Hilll Junctions Apt. 411",
+		pickup_time: "04:00 PM",
+		appointment_time: "05:30 PM",
+		drop_time: "08:12 PM",
+		miles: 84.15,
+		vehicle_type: "Van",
+	},
+	{
+		id: "7",
+		account_name: "Colorado Department of Health Care Policy...",
+		patient_name: "John Smith",
+		driver: "John Smith",
+		status: "upcoming",
+		pick_address: "Jamalpur",
+		drop_address: "781 Hilll Junctions Apt. 411",
+		pickup_time: "04:00 PM",
+		appointment_time: "05:30 PM",
+		drop_time: "08:12 PM",
+		miles: 84.15,
+		vehicle_type: "Van",
+	},
+	{
+		id: "8",
 		account_name: "Colorado Department of Health Care Policy...",
 		patient_name: "John Smith",
 		driver: "John Doe",
@@ -181,17 +199,13 @@ const selectColor = (status: string) => {
 	}
 };
 
-
-
 export const columns: ColumnDef<Schedule>[] = [
 	{
 		id: "select",
 		header: ({table}) => (
 			<Checkbox
 				checked={table.getIsAllPageRowsSelected()}
-				onCheckedChange={(value) =>
-					table.toggleAllPageRowsSelected(!!value)
-				}
+				onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
 				aria-label="Select all"
 			/>
 		),
@@ -208,20 +222,12 @@ export const columns: ColumnDef<Schedule>[] = [
 	{
 		accessorKey: "account_name",
 		header: "Account Name",
-		cell: ({row}) => (
-			<div className="capitalize min-w-[158px]">
-				{row.getValue("account_name")}
-			</div>
-		),
+		cell: ({row}) => <div className="capitalize min-w-[158px]">{row.getValue("account_name")}</div>,
 	},
 	{
 		accessorKey: "patient_name",
 		header: "Patient name",
-		cell: ({row}) => (
-			<div className="capitalize whitespace-nowrap">
-				{row.getValue("patient_name")}
-			</div>
-		),
+		cell: ({row}) => <div className="capitalize whitespace-nowrap">{row.getValue("patient_name")}</div>,
 	},
 	{
 		accessorKey: "driver",
@@ -233,10 +239,7 @@ export const columns: ColumnDef<Schedule>[] = [
 					defaultValue={row.getValue("driver")}
 					className="px-2"
 					trigger={(value, placeholder) => (
-						<SelectValue
-							className="text-sm font-medium px-2"
-							placeholder={placeholder}
-							aria-label={value}>
+						<SelectValue className="text-sm font-medium px-2" placeholder={placeholder} aria-label={value}>
 							<span className="text-[#4387F7] bg-[#F1FAFD] rounded w-6 h-5 inline-block mr-2">
 								{value
 									.split(" ")
@@ -264,7 +267,7 @@ export const columns: ColumnDef<Schedule>[] = [
 				<div className="capitalize">
 					<div
 						className={cn(
-							"px-2 py-1 relative rounded-md border-[0.5px] text-xs capitalize border-current flex items-center justify-center",
+							"px-2 py-1 relative rounded-md border-[0.5px] text-xs capitalize border-current flex items-center justify-center whitespace-nowrap",
 							text,
 							statusBg
 						)}>
@@ -278,62 +281,42 @@ export const columns: ColumnDef<Schedule>[] = [
 	{
 		accessorKey: "pick_address",
 		header: "Pick address",
-		cell: ({row}) => (
-			<div className="capitalize whitespace-nowrap">
-				{row.getValue("pick_address")}
-			</div>
-		),
+		cell: ({row}) => <div className="capitalize whitespace-nowrap">{row.getValue("pick_address")}</div>,
 	},
 	{
 		accessorKey: "drop_address",
 		header: "Drop address",
-		cell: ({row}) => (
-			<div className="capitalize whitespace-nowrap">
-				{row.getValue("drop_address")}
-			</div>
-		),
+		cell: ({row}) => <div className="capitalize whitespace-nowrap">{row.getValue("drop_address")}</div>,
 	},
 	{
 		accessorKey: "pickup_time",
 		header: "pickup time",
-		cell: ({row}) => (
-			<div className="capitalize">{row.getValue("pickup_time")}</div>
-		),
+		cell: ({row}) => <div className="capitalize">{row.getValue("pickup_time")}</div>,
 	},
 	{
 		accessorKey: "appointment_time",
 		header: "Appointment Time",
-		cell: ({row}) => (
-			<div className="capitalize">{row.getValue("appointment_time")}</div>
-		),
+		cell: ({row}) => <div className="capitalize">{row.getValue("appointment_time")}</div>,
 	},
 	{
 		accessorKey: "drop_time",
 		header: "Drop time",
-		cell: ({row}) => (
-			<div className="capitalize">{row.getValue("drop_time")}</div>
-		),
+		cell: ({row}) => <div className="capitalize">{row.getValue("drop_time")}</div>,
 	},
 	{
 		accessorKey: "miles",
 		header: "miles",
-		cell: ({row}) => (
-			<div className="capitalize">{row.getValue("miles")}</div>
-		),
+		cell: ({row}) => <div className="capitalize">{row.getValue("miles")}</div>,
 	},
 	{
 		accessorKey: "vehicle_type",
 		header: "Vehicle type",
-		cell: ({row}) => (
-			<div className="capitalize">{row.getValue("vehicle_type")}</div>
-		),
+		cell: ({row}) => <div className="capitalize">{row.getValue("vehicle_type")}</div>,
 	},
 	{
 		id: "actions",
 		enableHiding: false,
 		cell: ({row}) => {
-			const payment = row.original;
-
 			return (
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
@@ -342,15 +325,18 @@ export const columns: ColumnDef<Schedule>[] = [
 							<MoreVertical className="h-4 w-4" />
 						</Button>
 					</DropdownMenuTrigger>
-					<DropdownMenuContent align="end">
-						<DropdownMenuLabel>Actions</DropdownMenuLabel>
-						<DropdownMenuItem
-							onClick={() => navigator.clipboard.writeText(payment.id)}>
-							Copy payment ID
+					<DropdownMenuContent className="min-w-[220px]" align="end">
+						<DropdownMenuItem>
+							<ScanEye className="mr-3 w-4 h-4" />
+							View
 						</DropdownMenuItem>
-						<DropdownMenuSeparator />
-						<DropdownMenuItem>View customer</DropdownMenuItem>
-						<DropdownMenuItem>View payment details</DropdownMenuItem>
+						<DropdownMenuItem>
+							<PencilLine className="mr-3 w-4 h-4" /> Edit
+						</DropdownMenuItem>
+						<DropdownMenuItem>
+							<Trash className="mr-3 w-4 h-4" />
+							Delete
+						</DropdownMenuItem>
 					</DropdownMenuContent>
 				</DropdownMenu>
 			);
@@ -358,16 +344,19 @@ export const columns: ColumnDef<Schedule>[] = [
 	},
 ];
 
-export function ScheduleCalender() {
+export function TripsTable() {
 	const [sorting, setSorting] = React.useState<SortingState>([]);
-	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-		[]
-	);
-	const [columnVisibility, setColumnVisibility] =
-		React.useState<VisibilityState>({});
+	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
+	const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
+	const [globalFilter, setGlobalFilter] = React.useState("");
 	const [rowSelection, setRowSelection] = React.useState({});
 
 	const table = useReactTable({
+		initialState: {
+			pagination: {
+				pageSize: 6,
+			},
+		},
 		data,
 		columns,
 		onSortingChange: setSorting,
@@ -378,40 +367,62 @@ export function ScheduleCalender() {
 		getFilteredRowModel: getFilteredRowModel(),
 		onColumnVisibilityChange: setColumnVisibility,
 		onRowSelectionChange: setRowSelection,
+		onGlobalFilterChange: setGlobalFilter,
 		state: {
 			sorting,
 			columnFilters,
 			columnVisibility,
 			rowSelection,
+			globalFilter,
 		},
 	});
+	const drivers = [...new Set(data.map((item) => item.driver))];
+
+	// filter by column
+	const filterByColumn = (id: string, value: string) => {
+		setColumnFilters((columns) => {
+			const column = columns.findIndex((column) => column.id === id);
+			if (column !== -1) {
+				columns[column].value = value;
+				return [...columns];
+			} else {
+				return [...columns, {id, value}];
+			}
+		});
+	};
 
 	return (
 		<div className="w-full">
 			<div className="flex items-center py-4">
 				<Input
-					placeholder="Filter emails..."
-					// value={
-					// 	(table.getColumn("email")?.getFilterValue() as string) ?? ""
-					// }
-					// onChange={(event) =>
-					// 	table.getColumn("email")?.setFilterValue(event.target.value)
-					// }
+					placeholder="search"
+					onChange={(event) => setGlobalFilter(event.target.value)}
 					className="max-w-sm"
 				/>
 				<div className="flex items-center space-x-4 justify-end flex-1">
-					<CustomSelect
-						placeholder="Driver"
-						icon={<User2 className="mr-2 w-4 h-4" />}>
-						<SelectItem value="John Smith">John Smith</SelectItem>
-						<SelectItem value="John Doe">John Doe</SelectItem>
-					</CustomSelect>
-					<CustomSelect
-						placeholder="Client"
-						icon={<img className="mr-2" src={UserIcon} alt="client" />}
-					>
+					<CustomSelect className="min-w-[149px]" placeholder="Client" icon={<User2 className="mr-2 w-5 h-5" />}>
 						<SelectItem value="client-1">Client-1</SelectItem>
 						<SelectItem value="client-2">Client-2</SelectItem>
+					</CustomSelect>
+					<CustomSelect
+						className="min-w-[149px]"
+						placeholder="Driver"
+						onChange={(value) => filterByColumn("driver", value)}
+						icon={<img className="mr-2 w-5 h-5" src={UserIcon} alt="client" />}>
+						<SelectLabel>Drivers</SelectLabel>
+						{drivers.map((driver, i) => (
+							<SelectItem key={i} value={driver}>
+								{driver}
+							</SelectItem>
+						))}
+					</CustomSelect>
+					<CustomSelect
+						className="min-w-[149px]"
+						placeholder="Account"
+						onChange={(value) => filterByColumn("account_name", value)}
+						icon={<UserCircle2 className="mr-2 w-5 h-5" />}>
+						<SelectItem value="account 1">Account 1</SelectItem>
+						<SelectItem value="account 2">Account 2</SelectItem>
 					</CustomSelect>
 				</div>
 			</div>
@@ -422,15 +433,10 @@ export function ScheduleCalender() {
 							<TableRow key={headerGroup.id}>
 								{headerGroup.headers.map((header) => {
 									return (
-										<TableHead
-											className="uppercase whitespace-nowrap"
-											key={header.id}>
+										<TableHead className="uppercase whitespace-nowrap" key={header.id}>
 											{header.isPlaceholder
 												? null
-												: flexRender(
-														header.column.columnDef.header,
-														header.getContext()
-												  )}
+												: flexRender(header.column.columnDef.header, header.getContext())}
 										</TableHead>
 									);
 								})}
@@ -442,17 +448,12 @@ export function ScheduleCalender() {
 							table.getRowModel().rows.map((row) => {
 								return (
 									<TableRow
-										className={cn(
-											selectColor(row.getValue("status"))?.bg
-										)}
+										className={cn(selectColor(row.getValue("status"))?.bg)}
 										key={row.id}
 										data-state={row.getIsSelected() && "selected"}>
 										{row.getVisibleCells().map((cell) => (
 											<TableCell key={cell.id}>
-												{flexRender(
-													cell.column.columnDef.cell,
-													cell.getContext()
-												)}
+												{flexRender(cell.column.columnDef.cell, cell.getContext())}
 											</TableCell>
 										))}
 									</TableRow>
@@ -460,9 +461,7 @@ export function ScheduleCalender() {
 							})
 						) : (
 							<TableRow>
-								<TableCell
-									colSpan={columns.length}
-									className="h-24 text-center">
+								<TableCell colSpan={columns.length} className="h-24 text-center">
 									No results.
 								</TableCell>
 							</TableRow>
@@ -470,26 +469,40 @@ export function ScheduleCalender() {
 					</TableBody>
 				</Table>
 			</div>
-			<div className="flex items-center justify-end space-x-2 py-4">
-				<div className="flex-1 text-sm text-muted-foreground">
-					{table.getFilteredSelectedRowModel().rows.length} of{" "}
-					{table.getFilteredRowModel().rows.length} row(s) selected.
+			<div className="flex items-center justify-between space-x-2 py-4">
+				<div className="flex items-center space-x-2">
+					<div className="space-x-2">
+						<button onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>
+							<ChevronLeft />
+						</button>
+						<button onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
+							<ChevronRight />
+						</button>
+					</div>
+					<div className="flex-1 text-sm text-muted-foreground">
+						{table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1}-
+						{data.length <= (table.getState().pagination.pageIndex + 1) * table.getState().pagination.pageSize
+							? data.length
+							: (table.getState().pagination.pageIndex + 1) * table.getState().pagination.pageSize}{" "}
+						of {data.length} results
+						{/* {table.getFilteredSelectedRowModel().rows.length} of {table.getFilteredRowModel().rows.length} row(s)
+						selected. */}
+					</div>
 				</div>
-				<div className="space-x-2">
-					<Button
-						variant="outline"
-						size="sm"
-						onClick={() => table.previousPage()}
-						disabled={!table.getCanPreviousPage()}>
-						Previous
-					</Button>
-					<Button
-						variant="outline"
-						size="sm"
-						onClick={() => table.nextPage()}
-						disabled={!table.getCanNextPage()}>
-						Next
-					</Button>
+				<div className="text-[#8A8F96]">
+					Rows per page
+					<select
+						className="ml-2 bg-transparent font-medium text-black"
+						value={table.getState().pagination.pageSize}
+						onChange={(e) => {
+							table.setPageSize(Number(e.target.value));
+						}}>
+						{[6, 10, 20, 30].map((pageSize) => (
+							<option key={pageSize} value={pageSize}>
+								{pageSize}
+							</option>
+						))}
+					</select>
 				</div>
 			</div>
 		</div>

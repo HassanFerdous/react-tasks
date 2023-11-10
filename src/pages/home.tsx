@@ -1,8 +1,8 @@
-import {ScheduleCalender} from '@/components/schedule-table';
+import {TripsTable} from '@/components/trips-table';
 
 const Home = ()=> {
 	return <div className="container">
-		<ScheduleCalender />
+		<TripsTable />
 	</div>
 }
 

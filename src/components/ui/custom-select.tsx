@@ -16,6 +16,7 @@ interface CustomSelect {
 	placeholder: string;
 	className?: string;
 	icon?: ReactElement;
+	onChange?: (value: string) => void,
 	children: React.ReactNode;
 	trigger?: (value: string, placeholder: string) => React.ReactElement
 }
@@ -26,14 +27,18 @@ export default function CustomSelect({
 	trigger,
 	className,
 	children,
+	onChange,
 	icon,
 }: CustomSelect) {
 	const [value, setValue] = useState<string>(defaultValue || '');
 	return (
-		<Select defaultValue={value} onValueChange={setValue}>
-			<SelectPrimitive.Trigger className={cn('w-[180px]', className)} asChild>
+		<Select defaultValue={value} onValueChange={(currentValue)=> {
+			setValue(currentValue)
+			onChange && onChange(currentValue);
+		}}>
+			<SelectPrimitive.Trigger className={cn('min-[180px]', className)} asChild>
 				<Button
-					className="justify-between"
+					className="justify-between space-x-3"
 					variant="outline"
 					aria-label="driver">
 					<div className="flex items-center">
