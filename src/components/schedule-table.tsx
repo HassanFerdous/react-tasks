@@ -13,13 +13,9 @@ import {
 	getSortedRowModel,
 	useReactTable,
 } from "@tanstack/react-table";
-import {ChevronDown, MoreHorizontal} from "lucide-react";
+import {MoreVertical, User2} from "lucide-react";
 import {
-	Select,
-	SelectContent,
-	SelectGroup,
 	SelectItem,
-	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
 
@@ -27,7 +23,6 @@ import {Button} from "@/components/ui/button";
 import {Checkbox} from "@/components/ui/checkbox";
 import {
 	DropdownMenu,
-	DropdownMenuCheckboxItem,
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuLabel,
@@ -44,7 +39,25 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 import {cn} from "@/lib/utils";
+import CustomSelect from "./ui/custom-select";
+import UserIcon from "@/assets/user-id.svg";
 
+export type Schedule = {
+	id: string;
+	account_name: string;
+	patient_name: string;
+	driver: "John Smith" | "John Doe";
+	status: "upcoming" | "in progress" | "completed" | "canceled" | "scheduled";
+	pick_address: string;
+	drop_address: string;
+	pickup_time: string;
+	appointment_time: string;
+	drop_time: string;
+	miles: number;
+	vehicle_type: string;
+};
+
+//dummy data
 const data: Schedule[] = [
 	{
 		id: "1",
@@ -78,7 +91,7 @@ const data: Schedule[] = [
 		id: "3",
 		account_name: "Colorado Department of Health Care Policy...",
 		patient_name: "John Smith",
-		driver: "John Smith",
+		driver: "John Doe",
 		status: "canceled",
 		pick_address: "781 Hilll Junctions Apt. 411",
 		drop_address: "781 Hilll Junctions Apt. 411",
@@ -116,8 +129,23 @@ const data: Schedule[] = [
 		miles: 84.15,
 		vehicle_type: "Van",
 	},
+	{
+		id: "6",
+		account_name: "Colorado Department of Health Care Policy...",
+		patient_name: "John Smith",
+		driver: "John Doe",
+		status: "in progress",
+		pick_address: "781 Hilll Junctions Apt. 411",
+		drop_address: "781 Hilll Junctions Apt. 411",
+		pickup_time: "04:00 PM",
+		appointment_time: "05:30 PM",
+		drop_time: "08:12 PM",
+		miles: 84.15,
+		vehicle_type: "Van",
+	},
 ];
 
+// select row color by status
 const selectColor = (status: string) => {
 	const $lowerStatus = status.toLocaleLowerCase();
 	if ($lowerStatus === "completed") {
@@ -153,20 +181,7 @@ const selectColor = (status: string) => {
 	}
 };
 
-export type Schedule = {
-	id: string;
-	account_name: string;
-	patient_name: string;
-	driver: "John Smith" | "John Doe";
-	status: "upcoming" | "in progress" | "completed" | "canceled" | "scheduled";
-	pick_address: string;
-	drop_address: string;
-	pickup_time: string;
-	appointment_time: string;
-	drop_time: string;
-	miles: number;
-	vehicle_type: string;
-};
+
 
 export const columns: ColumnDef<Schedule>[] = [
 	{
@@ -213,17 +228,27 @@ export const columns: ColumnDef<Schedule>[] = [
 		header: "Driver",
 		cell: ({row}) => (
 			<div className="capitalize whitespace-nowrap">
-				<Select defaultValue={row.getValue("driver")}>
-					<SelectTrigger className="w-[183px]">
-						<SelectValue placeholder="Select Driver" />
-					</SelectTrigger>
-					<SelectContent>
-						<SelectGroup>
-							<SelectItem value="John Smith">John Smith</SelectItem>
-							<SelectItem value="John Doe">John Doe</SelectItem>
-						</SelectGroup>
-					</SelectContent>
-				</Select>
+				<CustomSelect
+					placeholder="Client"
+					defaultValue={row.getValue("driver")}
+					className="px-2"
+					trigger={(value, placeholder) => (
+						<SelectValue
+							className="text-sm font-medium px-2"
+							placeholder={placeholder}
+							aria-label={value}>
+							<span className="text-[#4387F7] bg-[#F1FAFD] rounded w-6 h-5 inline-block mr-2">
+								{value
+									.split(" ")
+									.slice(0, 2)
+									.map((l) => l[0])}
+							</span>
+							{value}
+						</SelectValue>
+					)}>
+					<SelectItem value="John Smith">John Smith</SelectItem>
+					<SelectItem value="John Doe">John Doe</SelectItem>
+				</CustomSelect>
 			</div>
 		),
 	},
@@ -231,30 +256,19 @@ export const columns: ColumnDef<Schedule>[] = [
 		accessorKey: "status",
 		header: "Status",
 		cell: ({row}) => {
-			const {text, statusBg} = selectColor(row.getValue("status")) as {text: string, statusBg: string};
+			const {text, statusBg} = selectColor(row.getValue("status")) as {
+				text: string;
+				statusBg: string;
+			};
 			return (
 				<div className="capitalize">
-					{/* <Select defaultValue={row.getValue("status")}>
-				<SelectTrigger className="w-[99px]">
-					<SelectValue placeholder="Status" />
-				</SelectTrigger>
-				<SelectContent>
-					<SelectGroup>
-						<SelectItem value="pending" className="capitalize">pending</SelectItem>
-						<SelectItem value="in progress" className="capitalize">in progress</SelectItem>
-						<SelectItem value="completed" className="capitalize">completed</SelectItem>
-						<SelectItem value="scheduled" className="capitalize">scheduled</SelectItem>
-						<SelectItem value="Canceled" className="capitalize">Canceled</SelectItem>
-					</SelectGroup>
-				</SelectContent>
-			</Select> */}
 					<div
 						className={cn(
 							"px-2 py-1 relative rounded-md border-[0.5px] text-xs capitalize border-current flex items-center justify-center",
 							text,
 							statusBg
 						)}>
-							<span className="w-1.5 h-1.5 rounded-full bg-current inline-block mr-2 opacity-60"></span>
+						<span className="w-1.5 h-1.5 rounded-full bg-current inline-block mr-2 opacity-60"></span>
 						{row.getValue("status")}
 					</div>
 				</div>
@@ -325,7 +339,7 @@ export const columns: ColumnDef<Schedule>[] = [
 					<DropdownMenuTrigger asChild>
 						<Button variant="ghost" className="h-8 w-8 p-0">
 							<span className="sr-only">Open menu</span>
-							<MoreHorizontal className="h-4 w-4" />
+							<MoreVertical className="h-4 w-4" />
 						</Button>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent align="end">
@@ -344,7 +358,7 @@ export const columns: ColumnDef<Schedule>[] = [
 	},
 ];
 
-export function CalenderPageTable() {
+export function ScheduleCalender() {
 	const [sorting, setSorting] = React.useState<SortingState>([]);
 	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
 		[]
@@ -385,31 +399,21 @@ export function CalenderPageTable() {
 					// }
 					className="max-w-sm"
 				/>
-				<DropdownMenu>
-					<DropdownMenuTrigger asChild>
-						<Button variant="outline" className="ml-auto">
-							Columns <ChevronDown className="ml-2 h-4 w-4" />
-						</Button>
-					</DropdownMenuTrigger>
-					<DropdownMenuContent align="end">
-						{table
-							.getAllColumns()
-							.filter((column) => column.getCanHide())
-							.map((column) => {
-								return (
-									<DropdownMenuCheckboxItem
-										key={column.id}
-										className="capitalize"
-										checked={column.getIsVisible()}
-										onCheckedChange={(value) =>
-											column.toggleVisibility(!!value)
-										}>
-										{column.id}
-									</DropdownMenuCheckboxItem>
-								);
-							})}
-					</DropdownMenuContent>
-				</DropdownMenu>
+				<div className="flex items-center space-x-4 justify-end flex-1">
+					<CustomSelect
+						placeholder="Driver"
+						icon={<User2 className="mr-2 w-4 h-4" />}>
+						<SelectItem value="John Smith">John Smith</SelectItem>
+						<SelectItem value="John Doe">John Doe</SelectItem>
+					</CustomSelect>
+					<CustomSelect
+						placeholder="Client"
+						icon={<img className="mr-2" src={UserIcon} alt="client" />}
+					>
+						<SelectItem value="client-1">Client-1</SelectItem>
+						<SelectItem value="client-2">Client-2</SelectItem>
+					</CustomSelect>
+				</div>
 			</div>
 			<div className="rounded-md border">
 				<Table>
