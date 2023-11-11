@@ -338,7 +338,9 @@ export const columns: ColumnDef<Schedule>[] = [
 			return (
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
-						<Button variant="ghost" className={cn('h-5 w-5 p-0 translate-x-2', selectColor(row.getValue("status"))['bg'])}>
+						<Button
+							variant="ghost"
+							className={cn("h-5 w-5 p-0 translate-x-2", selectColor(row.getValue("status"))["bg"])}>
 							<span className="sr-only">Open menu</span>
 							<MoreVertical className="h-4 w-4" />
 						</Button>
@@ -423,7 +425,7 @@ export function TripsTable() {
 
 	const [date, setDate] = React.useState<Date | undefined>(new Date());
 
-	const handleStatusChange = (e: any) => {
+	const handleStatusChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const status = e.target.value;
 		const isChecked = e.target.checked;
 		statusFilters = filterByStatus(status, isChecked) as ColumnFilter[];
@@ -645,7 +647,9 @@ export function TripsTable() {
 												key={row.id}
 												data-state={row.getIsSelected() && "selected"}>
 												{row.getVisibleCells().map((cell) => (
-													<TableCell className={cell.getContext().column.id === 'actions' ? 'sticky right-0' : ''} key={cell.id}>
+													<TableCell
+														className={cell.getContext().column.id === "actions" ? "sticky right-0" : ""}
+														key={cell.id}>
 														{flexRender(cell.column.columnDef.cell, cell.getContext())}
 													</TableCell>
 												))}
