@@ -3,7 +3,6 @@
 import * as React from "react";
 import {
 	ColumnDef,
-	ColumnFilter,
 	ColumnFiltersState,
 	SortingState,
 	VisibilityState,
@@ -276,6 +275,12 @@ export const columns: ColumnDef<Schedule>[] = [
 	{
 		accessorKey: "status",
 		header: "Status",
+		enableColumnFilter: true,
+		filterFn: (row, columnId, filterStatuses) => {
+			if (filterStatuses.length === 0) return true;
+			const status = row.getValue(columnId);
+			return filterStatuses.includes(status);
+		},
 		cell: ({row}) => {
 			const {text, statusBg} = selectColor(row.getValue("status")) as {
 				text: string;
@@ -366,10 +371,13 @@ export const columns: ColumnDef<Schedule>[] = [
 
 export function TripsTable() {
 	const [sorting, setSorting] = React.useState<SortingState>([]);
-	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
+	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([
+		{id: "status", value: ["completed", "in progress", "canceled", "upcoming"]},
+	]);
 	const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
 	const [globalFilter, setGlobalFilter] = React.useState("");
 	const [rowSelection, setRowSelection] = React.useState({});
+	const [date, setDate] = React.useState<Date | undefined>(new Date());
 
 	const table = useReactTable({
 		initialState: {
@@ -396,6 +404,7 @@ export function TripsTable() {
 			globalFilter,
 		},
 	});
+	const {pageIndex, pageSize} = table.getState().pagination;
 	const drivers = [...new Set(data.map((item) => item.driver))];
 
 	// filter by column
@@ -411,29 +420,18 @@ export function TripsTable() {
 		});
 	};
 
-	let statusFilters = columnFilters.filter((column) => column?.id === "status");
-	const filterByStatus = (statusValue: string, isChecked: boolean) => {
-		const existStatus = statusFilters.find((column) => column.value === statusValue);
-		if (isChecked && !existStatus) {
-			statusFilters.push({id: "status", value: statusValue});
-			return statusFilters;
+	//filter by status
+	const handleStatusChange = (checked: boolean, value: string) => {
+		let statuses = (columnFilters.find((f) => f?.id === "status")?.value as string[]) || [];
+		if (checked) {
+			statuses?.push(value);
+		} else {
+			statuses = statuses?.filter((f) => f !== value);
 		}
-		if (!isChecked && existStatus) {
-			return statusFilters.filter((column) => column.value !== existStatus?.value);
-		}
+		setColumnFilters((prev) => {
+			return prev.filter((f) => f.id !== "status").concat([{id: "status", value: statuses}]);
+		});
 	};
-
-	const [date, setDate] = React.useState<Date | undefined>(new Date());
-
-	const handleStatusChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const status = e.target.value;
-		const isChecked = e.target.checked;
-		statusFilters = filterByStatus(status, isChecked) as ColumnFilter[];
-		const otherColumnfilters = columnFilters.filter((column) => column?.id !== "status");
-		setColumnFilters(otherColumnfilters.concat(statusFilters));
-	};
-
-	const {pageIndex, pageSize} = table.getState().pagination;
 
 	return (
 		<div className="lg:grid grid-cols-[284px_calc(100%_-_284px)]">
@@ -492,8 +490,8 @@ export function TripsTable() {
 												className="text-xl h-4 w-4 accent-blue-500"
 												id="complete"
 												value="complete"
-												// checked
-												onChange={handleStatusChange}
+												defaultChecked
+												onCheckedChange={(checked: boolean) => handleStatusChange(checked, "completed")}
 											/>
 											<Label
 												htmlFor="complete"
@@ -507,7 +505,8 @@ export function TripsTable() {
 												className="text-xl h-4 w-4"
 												id="upcoming"
 												value="upcoming"
-												onChange={handleStatusChange}
+												defaultChecked
+												onCheckedChange={(checked: boolean) => handleStatusChange(checked, "upcoming")}
 											/>
 											<Label
 												htmlFor="upcoming"
@@ -521,7 +520,8 @@ export function TripsTable() {
 												className="text-xl h-4 w-4"
 												id="in_progress"
 												value="in progress"
-												onChange={handleStatusChange}
+												defaultChecked
+												onCheckedChange={(checked: boolean) => handleStatusChange(checked, "in progress")}
 											/>
 
 											<Label
@@ -536,7 +536,8 @@ export function TripsTable() {
 												className="text-xl h-4 w-4"
 												id="canceled"
 												value="canceled"
-												onChange={handleStatusChange}
+												defaultChecked
+												onCheckedChange={(checked: boolean) => handleStatusChange(checked, "canceled")}
 											/>
 											<Label
 												htmlFor="canceled"
@@ -567,7 +568,7 @@ export function TripsTable() {
 						<Input
 							placeholder="Search"
 							id="search"
-							// onChange={(event) => setGlobalFilter(event.target.value)}
+							onChange={(event) => setGlobalFilter(event.target.value)}
 							className="w-full lg:max-w-[280px] px-11"
 						/>
 					</div>
