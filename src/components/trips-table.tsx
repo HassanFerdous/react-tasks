@@ -19,9 +19,11 @@ import {
 	ArrowRight,
 	ChevronLeft,
 	ChevronRight,
+	Maximize2,
 	MoreVertical,
 	PencilLine,
 	ScanEye,
+	Search,
 	Trash,
 	User2,
 	UserCircle2,
@@ -45,6 +47,8 @@ import CustomSelect from "./ui/custom-select";
 import UserIcon from "@/assets/user-id.svg";
 import {Calendar} from "@/components/ui/calendar";
 import {Label} from "./ui/label";
+import filter from "@/assets/tuning.svg";
+import {Accordion, AccordionContent, AccordionItem, AccordionTrigger} from "@/components/ui/accordion";
 
 export type Schedule = {
 	id: string;
@@ -334,7 +338,7 @@ export const columns: ColumnDef<Schedule>[] = [
 			return (
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
-						<Button variant="ghost" className="h-8 w-8 p-0">
+						<Button variant="ghost" className={cn('h-5 w-5 p-0 translate-x-2', selectColor(row.getValue("status"))['bg'])}>
 							<span className="sr-only">Open menu</span>
 							<MoreVertical className="h-4 w-4" />
 						</Button>
@@ -427,8 +431,11 @@ export function TripsTable() {
 		setColumnFilters(otherColumnfilters.concat(statusFilters));
 	};
 
+	const {pageIndex, pageSize} = table.getState().pagination;
+
 	return (
-		<div className="grid grid-cols-[284px_calc(100%_-_284px)]">
+		<div className="lg:grid grid-cols-[284px_calc(100%_-_284px)]">
+			{/* Sidebar */}
 			<aside className="border-r border-[#E6EBF3]">
 				<div className="min-h-[92px] border-b border-[#E6EBF3] px-8 py-6">
 					<h2 className="text-2xl font-medium">Calendar</h2>
@@ -438,7 +445,7 @@ export function TripsTable() {
 						mode="single"
 						selected={date}
 						onSelect={setDate}
-						className="rounded-md border"
+						className="rounded-md border max-lg:max-w-[350px] mx-auto"
 						classNames={{
 							month: "w-full",
 							table: "mt-6 w-full",
@@ -460,116 +467,138 @@ export function TripsTable() {
 						}}
 					/>
 					<div className="py-6 border-t border-[#E6EBF3] mt-8">
-						<Input
-							placeholder="Search trip..."
-							// onChange={(event) => setGlobalFilter(event.target.value)}
-							className="max-w-sm"
-						/>
+						<div className="relative">
+							<Label className="absolute left-4 top-1/2 -translate-y-1/2" htmlFor="search_trip">
+								<Search className="w-5 h-5 text-[#7F8596]" />
+							</Label>
+							<Input
+								placeholder="Search trip..."
+								id="search_trip"
+								// onChange={(event) => setGlobalFilter(event.target.value)}
+								className="w-full lg:max-w-[280px] px-11 bg-[#F9FBFF]"
+							/>
+						</div>
 					</div>
 					<div>
-						<button className="text-base font-medium">Trip status</button>
-						<div className="space-y-4 py-6">
-							<div className="flex items-center space-x-2">
-								<Input
-									className="text-xl h-4 w-4"
-									id="complete"
-									type="checkbox"
-									value="complete"
-									checked
-									onChange={handleStatusChange}
-								/>
-								<Label
-									htmlFor="complete"
-									className="px-2 py-1 h-7 relative rounded-md border-[0.5px] text-xs capitalize border-current flex items-center justify-center whitespace-nowrap text-[#547544] bg-[#DEFFCF]">
-									<span className="w-1.5 h-1.5 rounded-full bg-current inline-block mr-2 opacity-60"></span>
-									completed
-								</Label>
-							</div>
-							<div className="flex items-center space-x-2">
-								<Input
-									className="text-xl h-4 w-4"
-									id="upcoming"
-									type="checkbox"
-									value="upcoming"
-									checked
-									onChange={handleStatusChange}
-								/>
-								<Label
-									htmlFor="upcoming"
-									className="px-2 py-1 h-7 relative rounded-md border-[0.5px] text-xs capitalize border-current flex items-center justify-center whitespace-nowrap text-[#726D41] bg-[#FFFACC]">
-									<span className="w-1.5 h-1.5 rounded-full bg-current inline-block mr-2 opacity-60"></span>
-									upcoming
-								</Label>
-							</div>
-							<div className="flex items-center space-x-2">
-								<Input
-									className="text-xl h-4 w-4"
-									id="in_progress"
-									type="checkbox"
-									value="in progress"
-									checked
-									onChange={handleStatusChange}
-								/>
-								<Label
-									htmlFor="in_progress"
-									className="px-2 py-1 h-7 relative rounded-md border-[0.5px] text-xs capitalize border-current flex items-center justify-center whitespace-nowrap text-[#825D30] bg-[#FFE6C8]">
-									<span className="w-1.5 h-1.5 rounded-full bg-current inline-block mr-2 opacity-60"></span>In
-									progress
-								</Label>
-							</div>
-							<div className="flex items-center space-x-2">
-								<Input
-									className="text-xl h-4 w-4"
-									id="canceled"
-									type="checkbox"
-									value="canceled"
-									checked
-									onChange={handleStatusChange}
-								/>
-								<Label
-									htmlFor="canceled"
-									className="px-2 py-1 h-7 relative rounded-md border-[0.5px] text-xs capitalize border-current flex items-center justify-center whitespace-nowrap text-[#843838] bg-[#FFDADA]">
-									<span className="w-1.5 h-1.5 rounded-full bg-current inline-block mr-2 opacity-60"></span>
-									Canceled
-								</Label>
-							</div>
-						</div>
-						<button className="text-base font-medium">Accounts</button>
+						<Accordion defaultValue={["item-1"]} type="multiple">
+							<AccordionItem className="border-0" value="item-1">
+								<AccordionTrigger className="font-medium hover:no-underline">Trip Status</AccordionTrigger>
+								<AccordionContent>
+									<div className="space-y-4 py-3">
+										<div className="flex items-center space-x-2">
+											<Checkbox
+												className="text-xl h-4 w-4 accent-blue-500"
+												id="complete"
+												value="complete"
+												// checked
+												onChange={handleStatusChange}
+											/>
+											<Label
+												htmlFor="complete"
+												className="px-2 py-1 h-7 relative rounded-md border-[0.5px] text-xs capitalize border-current flex items-center justify-center whitespace-nowrap text-[#547544] bg-[#DEFFCF]">
+												<span className="w-1.5 h-1.5 rounded-full bg-current inline-block mr-2 opacity-60"></span>
+												completed
+											</Label>
+										</div>
+										<div className="flex items-center space-x-2">
+											<Checkbox
+												className="text-xl h-4 w-4"
+												id="upcoming"
+												value="upcoming"
+												onChange={handleStatusChange}
+											/>
+											<Label
+												htmlFor="upcoming"
+												className="px-2 py-1 h-7 relative rounded-md border-[0.5px] text-xs capitalize border-current flex items-center justify-center whitespace-nowrap text-[#726D41] bg-[#FFFACC]">
+												<span className="w-1.5 h-1.5 rounded-full bg-current inline-block mr-2 opacity-60"></span>
+												upcoming
+											</Label>
+										</div>
+										<div className="flex items-center space-x-2">
+											<Checkbox
+												className="text-xl h-4 w-4"
+												id="in_progress"
+												value="in progress"
+												onChange={handleStatusChange}
+											/>
+
+											<Label
+												htmlFor="in_progress"
+												className="px-2 py-1 h-7 relative rounded-md border-[0.5px] text-xs capitalize border-current flex items-center justify-center whitespace-nowrap text-[#825D30] bg-[#FFE6C8]">
+												<span className="w-1.5 h-1.5 rounded-full bg-current inline-block mr-2 opacity-60"></span>
+												In progress
+											</Label>
+										</div>
+										<div className="flex items-center space-x-2">
+											<Checkbox
+												className="text-xl h-4 w-4"
+												id="canceled"
+												value="canceled"
+												onChange={handleStatusChange}
+											/>
+											<Label
+												htmlFor="canceled"
+												className="px-2 py-1 h-7 relative rounded-md border-[0.5px] text-xs capitalize border-current flex items-center justify-center whitespace-nowrap text-[#843838] bg-[#FFDADA]">
+												<span className="w-1.5 h-1.5 rounded-full bg-current inline-block mr-2 opacity-60"></span>
+												Canceled
+											</Label>
+										</div>
+									</div>
+								</AccordionContent>
+							</AccordionItem>
+							<AccordionItem className="border-0" value="item-2">
+								<AccordionTrigger className="font-medium hover:no-underline">Accounts</AccordionTrigger>
+								<AccordionContent>Yes. It adheres to the WAI-ARIA design pattern.</AccordionContent>
+							</AccordionItem>
+						</Accordion>
 					</div>
 				</div>
 			</aside>
-			<div className="">
-				<div className="py-6 px-8 border-b border-[#E6EBF3] min-h-[92px] flex items-center justify-between space-x-6">
-					<Input
-						placeholder="search"
-						onChange={(event) => setGlobalFilter(event.target.value)}
-						className="max-w-sm"
-					/>
-					<CustomSelect className="min-w-[149px]" placeholder="Client" icon={<User2 className="mr-2 w-5 h-5" />}>
-						<SelectItem value="client-1">Client-1</SelectItem>
-						<SelectItem value="client-2">Client-2</SelectItem>
-					</CustomSelect>
+
+			{/* Content */}
+			<div className="trip-content">
+				<div className="py-5 px-6 lg:px-8 border-b border-[#E6EBF3] min-h-[92px] flex items-center justify-between space-x-3 md:space-x-6">
+					<div className="relative">
+						<Label className="absolute left-4 top-1/2 -translate-y-1/2" htmlFor="search">
+							<Search className="w-5 h-5 text-[#7F8596]" />
+						</Label>
+						<Input
+							placeholder="Search"
+							id="search"
+							// onChange={(event) => setGlobalFilter(event.target.value)}
+							className="w-full lg:max-w-[280px] px-11"
+						/>
+					</div>
+					<div className="flex items-center space-x-3 md:space-x-4">
+						<Button className="h-11" variant="outline">
+							<img className="w-5 h-5 mr-2 inline-block" src={filter} alt="" />
+							Filter
+						</Button>
+						<Button className="h-11 w-11 p-0" variant="outline">
+							<Maximize2 className="w-5 h-5" />
+						</Button>
+					</div>
 				</div>
-				<div className="px-8">
-					<div className="flex items-center py-4 ">
+				<div className="px-6 md:px-8">
+					<div className="lg:flex items-center py-4 flex-wrap">
 						<div className="flex items-center">
 							<Button className="w-8 h-8" size="icon" variant="outline">
 								<ArrowLeft className="w-5 h-5" />
 							</Button>
-							<div className="ml-3 text-[#7F8596] font-medium text-xl">
-								<strong className="text-black">Trips: </strong>16 Oct, 2023
+							<div className="ml-3 text-[#7F8596] font-medium text-base xl:text-xl">
+								<span className="text-black">Trips: </span>16 Oct, 2023
 							</div>
 						</div>
-						<div className="flex items-center space-x-4 justify-end flex-1">
+						<div className="flex items-center flex-wrap sm:space-x-2 max-sm:space-y-2 md:space-x-4 justify-end flex-1 mt-5 lg:mt-0">
 							<CustomSelect
-								className="min-w-[149px]"
+								className="min-w-[149px] max-sm:w-full"
 								placeholder="Client"
 								icon={<User2 className="mr-2 w-5 h-5" />}>
 								<SelectItem value="client-1">Client-1</SelectItem>
 								<SelectItem value="client-2">Client-2</SelectItem>
 							</CustomSelect>
 							<CustomSelect
-								className="min-w-[149px]"
+								className="min-w-[149px] max-sm:w-full"
 								placeholder="Driver"
 								onChange={(value) => filterByColumn("driver", value)}
 								icon={<img className="mr-2 w-5 h-5" src={UserIcon} alt="client" />}>
@@ -581,7 +610,7 @@ export function TripsTable() {
 								))}
 							</CustomSelect>
 							<CustomSelect
-								className="min-w-[149px]"
+								className="min-w-[149px] max-sm:w-full"
 								placeholder="Account"
 								onChange={(value) => filterByColumn("account_name", value)}
 								icon={<UserCircle2 className="mr-2 w-5 h-5" />}>
@@ -616,7 +645,7 @@ export function TripsTable() {
 												key={row.id}
 												data-state={row.getIsSelected() && "selected"}>
 												{row.getVisibleCells().map((cell) => (
-													<TableCell key={cell.id}>
+													<TableCell className={cell.getContext().column.id === 'actions' ? 'sticky right-0' : ''} key={cell.id}>
 														{flexRender(cell.column.columnDef.cell, cell.getContext())}
 													</TableCell>
 												))}
@@ -635,30 +664,25 @@ export function TripsTable() {
 					</div>
 					<div className="flex items-center justify-between space-x-2 py-4">
 						<div className="flex items-center space-x-2">
-							<div className="space-x-2">
+							<div className="space-x-2 flex items-center">
 								<button onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>
-									<ChevronLeft />
+									<ChevronLeft className="max-md:w-4 max-md:h-4" />
 								</button>
 								<button onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
-									<ChevronRight />
+									<ChevronRight className="max-md:w-4 max-md:h-4" />
 								</button>
 							</div>
-							<div className="flex-1 text-sm text-muted-foreground">
-								{table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1}-
-								{data.length <=
-								(table.getState().pagination.pageIndex + 1) * table.getState().pagination.pageSize
-									? data.length
-									: (table.getState().pagination.pageIndex + 1) * table.getState().pagination.pageSize}{" "}
-								of {data.length} results
-								{/* {table.getFilteredSelectedRowModel().rows.length} of {table.getFilteredRowModel().rows.length} row(s)
-						selected. */}
+							<div className="flex-1 text-sm text-muted-foreground max-md:text-xs">
+								{pageIndex * pageSize + 1}-
+								{data.length <= (pageIndex + 1) * pageSize ? data.length : (pageIndex + 1) * pageSize} of{" "}
+								{data.length} results
 							</div>
 						</div>
-						<div className="text-[#8A8F96]">
+						<div className="text-[#8A8F96] max-md:text-xs">
 							Rows per page
 							<select
 								className="ml-2 bg-transparent font-medium text-black"
-								value={table.getState().pagination.pageSize}
+								value={pageSize}
 								onChange={(e) => {
 									table.setPageSize(Number(e.target.value));
 								}}>
