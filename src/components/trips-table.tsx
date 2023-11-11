@@ -395,7 +395,7 @@ export function TripsTable() {
 	// filter by column
 	const filterByColumn = (id: string, value: string) => {
 		setColumnFilters((columns) => {
-			const column = columns.findIndex((column) => column.id === id);
+			const column = columns.findIndex((column) => column?.id === id);
 			if (column !== -1) {
 				columns[column].value = value;
 				return [...columns];
@@ -405,213 +405,270 @@ export function TripsTable() {
 		});
 	};
 
-	let statusFilters = columnFilters.filter(column => column.id === 'status');
-	const filterByStatus = (statusValue:string, isChecked:boolean) => {
-		const existStatus = statusFilters.find(column => column.value === statusValue);
-		if(isChecked && !existStatus) {
-			statusFilters.push({id: 'status', value: statusValue})
+	let statusFilters = columnFilters.filter((column) => column?.id === "status");
+	const filterByStatus = (statusValue: string, isChecked: boolean) => {
+		const existStatus = statusFilters.find((column) => column.value === statusValue);
+		if (isChecked && !existStatus) {
+			statusFilters.push({id: "status", value: statusValue});
 			return statusFilters;
 		}
-		if(!isChecked && existStatus) {
-			return statusFilters.filter(column => (column.value !== existStatus?.value))
+		if (!isChecked && existStatus) {
+			return statusFilters.filter((column) => column.value !== existStatus?.value);
 		}
-	}
+	};
 
 	const [date, setDate] = React.useState<Date | undefined>(new Date());
 
-	const handleStatusChange = (e:any)=> {
+	const handleStatusChange = (e: any) => {
 		const status = e.target.value;
 		const isChecked = e.target.checked;
 		statusFilters = filterByStatus(status, isChecked) as ColumnFilter[];
-		const otherColumnfilters = columnFilters.filter(column => column.id !== 'status');
-		setColumnFilters(otherColumnfilters.concat(statusFilters))
-	}
-	console.log(columnFilters);
+		const otherColumnfilters = columnFilters.filter((column) => column?.id !== "status");
+		setColumnFilters(otherColumnfilters.concat(statusFilters));
+	};
 
 	return (
 		<div className="grid grid-cols-[284px_calc(100%_-_284px)]">
-			<aside className="py-8 px-6">
-				<Calendar
-					mode="single"
-					selected={date}
-					onSelect={setDate}
-					className="rounded-md border"
-					classNames={{
-						month: "w-full",
-						table: "mt-6 w-full",
-						head_row: "hidden",
-						row: "flex space-x-1 justify-between [&:not(:last-child)]:mb-4",
-						cell: "[&:has([aria-selected])]:bg-transparent",
-						day: "w-6 h-6 relative",
-						day_today:
-							'after:absolute after:top-1/2 after:left-1/2 after:w-8 after:h-8 after:content-[""] after:border after:border-blue-500 after:rounded-full after:-translate-x-1/2  after:-translate-y-1/2',
-						day_selected:
-							'bg-transparent after:absolute after:top-1/2 after:left-1/2 after:w-8 after:h-8 after:content-[""] after:border after:border-blue-500 after:rounded-full after:-translate-x-1/2  after:-translate-y-1/2 after:bg-blue-500 text-white after:-z-[1]',
-						nav_button_previous: "relative text-black opacity-100",
-						nav_button_next: "relative text-black opacity-100",
-						caption: "flex items-center justify-between space-x-3",
-					}}
-					components={{
-						IconLeft: () => <ArrowLeft className="w-4 h-5" />,
-						IconRight: () => <ArrowRight className="w-4 h-5" />,
-					}}
-				/>
-				<div>
-					Trip status
-					<div className="space-y-4">
-						<div className="flex items-center space-x-2">
-							<Input className="text-xl h-4 w-4" id="complete" type="checkbox" value='complete' onChange={handleStatusChange} />
-							<Label
-								htmlFor="complete"
-								className="px-2 py-1 h-7 relative rounded-md border-[0.5px] text-xs capitalize border-current flex items-center justify-center whitespace-nowrap text-[#547544] bg-[#DEFFCF]">
-								<span className="w-1.5 h-1.5 rounded-full bg-current inline-block mr-2 opacity-60"></span>
-								completed
-							</Label>
+			<aside className="border-r border-[#E6EBF3]">
+				<div className="min-h-[92px] border-b border-[#E6EBF3] px-8 py-6">
+					<h2 className="text-2xl font-medium">Calendar</h2>
+				</div>
+				<div className="py-8 px-6">
+					<Calendar
+						mode="single"
+						selected={date}
+						onSelect={setDate}
+						className="rounded-md border"
+						classNames={{
+							month: "w-full",
+							table: "mt-6 w-full",
+							head_row: "hidden",
+							row: "flex space-x-1 justify-between [&:not(:last-child)]:mb-4",
+							cell: "[&:has([aria-selected])]:bg-transparent",
+							day: "w-6 h-6 relative",
+							day_today:
+								'after:absolute after:top-1/2 after:left-1/2 after:w-8 after:h-8 after:content-[""] after:border after:border-blue-500 after:rounded-full after:-translate-x-1/2  after:-translate-y-1/2',
+							day_selected:
+								'bg-transparent after:absolute after:top-1/2 after:left-1/2 after:w-8 after:h-8 after:content-[""] after:border after:border-blue-500 after:rounded-full after:-translate-x-1/2  after:-translate-y-1/2 after:bg-blue-500 text-white after:-z-[1]',
+							nav_button_previous: "relative text-black opacity-100",
+							nav_button_next: "relative text-black opacity-100",
+							caption: "flex items-center justify-between space-x-3",
+						}}
+						components={{
+							IconLeft: () => <ArrowLeft className="w-4 h-5" />,
+							IconRight: () => <ArrowRight className="w-4 h-5" />,
+						}}
+					/>
+					<div className="py-6 border-t border-[#E6EBF3] mt-8">
+						<Input
+							placeholder="Search trip..."
+							// onChange={(event) => setGlobalFilter(event.target.value)}
+							className="max-w-sm"
+						/>
+					</div>
+					<div>
+						<button className="text-base font-medium">Trip status</button>
+						<div className="space-y-4 py-6">
+							<div className="flex items-center space-x-2">
+								<Input
+									className="text-xl h-4 w-4"
+									id="complete"
+									type="checkbox"
+									value="complete"
+									checked
+									onChange={handleStatusChange}
+								/>
+								<Label
+									htmlFor="complete"
+									className="px-2 py-1 h-7 relative rounded-md border-[0.5px] text-xs capitalize border-current flex items-center justify-center whitespace-nowrap text-[#547544] bg-[#DEFFCF]">
+									<span className="w-1.5 h-1.5 rounded-full bg-current inline-block mr-2 opacity-60"></span>
+									completed
+								</Label>
+							</div>
+							<div className="flex items-center space-x-2">
+								<Input
+									className="text-xl h-4 w-4"
+									id="upcoming"
+									type="checkbox"
+									value="upcoming"
+									checked
+									onChange={handleStatusChange}
+								/>
+								<Label
+									htmlFor="upcoming"
+									className="px-2 py-1 h-7 relative rounded-md border-[0.5px] text-xs capitalize border-current flex items-center justify-center whitespace-nowrap text-[#726D41] bg-[#FFFACC]">
+									<span className="w-1.5 h-1.5 rounded-full bg-current inline-block mr-2 opacity-60"></span>
+									upcoming
+								</Label>
+							</div>
+							<div className="flex items-center space-x-2">
+								<Input
+									className="text-xl h-4 w-4"
+									id="in_progress"
+									type="checkbox"
+									value="in progress"
+									checked
+									onChange={handleStatusChange}
+								/>
+								<Label
+									htmlFor="in_progress"
+									className="px-2 py-1 h-7 relative rounded-md border-[0.5px] text-xs capitalize border-current flex items-center justify-center whitespace-nowrap text-[#825D30] bg-[#FFE6C8]">
+									<span className="w-1.5 h-1.5 rounded-full bg-current inline-block mr-2 opacity-60"></span>In
+									progress
+								</Label>
+							</div>
+							<div className="flex items-center space-x-2">
+								<Input
+									className="text-xl h-4 w-4"
+									id="canceled"
+									type="checkbox"
+									value="canceled"
+									checked
+									onChange={handleStatusChange}
+								/>
+								<Label
+									htmlFor="canceled"
+									className="px-2 py-1 h-7 relative rounded-md border-[0.5px] text-xs capitalize border-current flex items-center justify-center whitespace-nowrap text-[#843838] bg-[#FFDADA]">
+									<span className="w-1.5 h-1.5 rounded-full bg-current inline-block mr-2 opacity-60"></span>
+									Canceled
+								</Label>
+							</div>
 						</div>
-						<div className="flex items-center space-x-2">
-							<Input className="text-xl h-4 w-4" id="upcoming" type="checkbox" value="upcoming" onChange={handleStatusChange} />
-							<Label
-								htmlFor="upcoming"
-								className="px-2 py-1 h-7 relative rounded-md border-[0.5px] text-xs capitalize border-current flex items-center justify-center whitespace-nowrap text-[#726D41] bg-[#FFFACC]">
-								<span className="w-1.5 h-1.5 rounded-full bg-current inline-block mr-2 opacity-60"></span>
-								upcoming
-							</Label>
-						</div>
-						<div className="flex items-center space-x-2">
-							<Input className="text-xl h-4 w-4" id="in_progress" type="checkbox" value="in progress" onChange={handleStatusChange} />
-							<Label
-								htmlFor="in_progress"
-								className="px-2 py-1 h-7 relative rounded-md border-[0.5px] text-xs capitalize border-current flex items-center justify-center whitespace-nowrap text-[#825D30] bg-[#FFE6C8]">
-								<span className="w-1.5 h-1.5 rounded-full bg-current inline-block mr-2 opacity-60"></span>In
-								progress
-							</Label>
-						</div>
-						<div className="flex items-center space-x-2">
-							<Input className="text-xl h-4 w-4" id="canceled" type="checkbox" value="canceled" onChange={handleStatusChange} />
-							<Label
-								htmlFor="canceled"
-								className="px-2 py-1 h-7 relative rounded-md border-[0.5px] text-xs capitalize border-current flex items-center justify-center whitespace-nowrap text-[#843838] bg-[#FFDADA]">
-								<span className="w-1.5 h-1.5 rounded-full bg-current inline-block mr-2 opacity-60"></span>
-								Canceled
-							</Label>
-						</div>
+						<button className="text-base font-medium">Accounts</button>
 					</div>
 				</div>
 			</aside>
 			<div className="">
-				<div className="flex items-center py-4">
+				<div className="py-6 px-8 border-b border-[#E6EBF3] min-h-[92px] flex items-center justify-between space-x-6">
 					<Input
 						placeholder="search"
 						onChange={(event) => setGlobalFilter(event.target.value)}
 						className="max-w-sm"
 					/>
-					<div className="flex items-center space-x-4 justify-end flex-1">
-						<CustomSelect
-							className="min-w-[149px]"
-							placeholder="Client"
-							icon={<User2 className="mr-2 w-5 h-5" />}>
-							<SelectItem value="client-1">Client-1</SelectItem>
-							<SelectItem value="client-2">Client-2</SelectItem>
-						</CustomSelect>
-						<CustomSelect
-							className="min-w-[149px]"
-							placeholder="Driver"
-							onChange={(value) => filterByColumn("driver", value)}
-							icon={<img className="mr-2 w-5 h-5" src={UserIcon} alt="client" />}>
-							<SelectLabel>Drivers</SelectLabel>
-							{drivers.map((driver, i) => (
-								<SelectItem key={i} value={driver}>
-									{driver}
-								</SelectItem>
-							))}
-						</CustomSelect>
-						<CustomSelect
-							className="min-w-[149px]"
-							placeholder="Account"
-							onChange={(value) => filterByColumn("account_name", value)}
-							icon={<UserCircle2 className="mr-2 w-5 h-5" />}>
-							<SelectItem value="account 1">Account 1</SelectItem>
-							<SelectItem value="account 2">Account 2</SelectItem>
-						</CustomSelect>
-					</div>
+					<CustomSelect className="min-w-[149px]" placeholder="Client" icon={<User2 className="mr-2 w-5 h-5" />}>
+						<SelectItem value="client-1">Client-1</SelectItem>
+						<SelectItem value="client-2">Client-2</SelectItem>
+					</CustomSelect>
 				</div>
-				<div className="rounded-md border">
-					<Table>
-						<TableHeader>
-							{table.getHeaderGroups().map((headerGroup) => (
-								<TableRow key={headerGroup.id}>
-									{headerGroup.headers.map((header) => {
+				<div className="px-8">
+					<div className="flex items-center py-4 ">
+						<div className="flex items-center">
+							<Button className="w-8 h-8" size="icon" variant="outline">
+								<ArrowLeft className="w-5 h-5" />
+							</Button>
+							<div className="ml-3 text-[#7F8596] font-medium text-xl">
+								<strong className="text-black">Trips: </strong>16 Oct, 2023
+							</div>
+						</div>
+						<div className="flex items-center space-x-4 justify-end flex-1">
+							<CustomSelect
+								className="min-w-[149px]"
+								placeholder="Client"
+								icon={<User2 className="mr-2 w-5 h-5" />}>
+								<SelectItem value="client-1">Client-1</SelectItem>
+								<SelectItem value="client-2">Client-2</SelectItem>
+							</CustomSelect>
+							<CustomSelect
+								className="min-w-[149px]"
+								placeholder="Driver"
+								onChange={(value) => filterByColumn("driver", value)}
+								icon={<img className="mr-2 w-5 h-5" src={UserIcon} alt="client" />}>
+								<SelectLabel>Drivers</SelectLabel>
+								{drivers.map((driver, i) => (
+									<SelectItem key={i} value={driver}>
+										{driver}
+									</SelectItem>
+								))}
+							</CustomSelect>
+							<CustomSelect
+								className="min-w-[149px]"
+								placeholder="Account"
+								onChange={(value) => filterByColumn("account_name", value)}
+								icon={<UserCircle2 className="mr-2 w-5 h-5" />}>
+								<SelectItem value="account 1">Account 1</SelectItem>
+								<SelectItem value="account 2">Account 2</SelectItem>
+							</CustomSelect>
+						</div>
+					</div>
+					<div className="rounded-md border">
+						<Table>
+							<TableHeader>
+								{table.getHeaderGroups().map((headerGroup) => (
+									<TableRow key={headerGroup.id}>
+										{headerGroup.headers.map((header) => {
+											return (
+												<TableHead className="uppercase whitespace-nowrap" key={header.id}>
+													{header.isPlaceholder
+														? null
+														: flexRender(header.column.columnDef.header, header.getContext())}
+												</TableHead>
+											);
+										})}
+									</TableRow>
+								))}
+							</TableHeader>
+							<TableBody>
+								{table.getRowModel().rows?.length ? (
+									table.getRowModel().rows.map((row) => {
 										return (
-											<TableHead className="uppercase whitespace-nowrap" key={header.id}>
-												{header.isPlaceholder
-													? null
-													: flexRender(header.column.columnDef.header, header.getContext())}
-											</TableHead>
+											<TableRow
+												className={cn(selectColor(row.getValue("status"))?.bg)}
+												key={row.id}
+												data-state={row.getIsSelected() && "selected"}>
+												{row.getVisibleCells().map((cell) => (
+													<TableCell key={cell.id}>
+														{flexRender(cell.column.columnDef.cell, cell.getContext())}
+													</TableCell>
+												))}
+											</TableRow>
 										);
-									})}
-								</TableRow>
-							))}
-						</TableHeader>
-						<TableBody>
-							{table.getRowModel().rows?.length ? (
-								table.getRowModel().rows.map((row) => {
-									return (
-										<TableRow
-											className={cn(selectColor(row.getValue("status"))?.bg)}
-											key={row.id}
-											data-state={row.getIsSelected() && "selected"}>
-											{row.getVisibleCells().map((cell) => (
-												<TableCell key={cell.id}>
-													{flexRender(cell.column.columnDef.cell, cell.getContext())}
-												</TableCell>
-											))}
-										</TableRow>
-									);
-								})
-							) : (
-								<TableRow>
-									<TableCell colSpan={columns.length} className="h-24 text-center">
-										No results.
-									</TableCell>
-								</TableRow>
-							)}
-						</TableBody>
-					</Table>
-				</div>
-				<div className="flex items-center justify-between space-x-2 py-4">
-					<div className="flex items-center space-x-2">
-						<div className="space-x-2">
-							<button onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>
-								<ChevronLeft />
-							</button>
-							<button onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
-								<ChevronRight />
-							</button>
-						</div>
-						<div className="flex-1 text-sm text-muted-foreground">
-							{table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1}-
-							{data.length <= (table.getState().pagination.pageIndex + 1) * table.getState().pagination.pageSize
-								? data.length
-								: (table.getState().pagination.pageIndex + 1) * table.getState().pagination.pageSize}{" "}
-							of {data.length} results
-							{/* {table.getFilteredSelectedRowModel().rows.length} of {table.getFilteredRowModel().rows.length} row(s)
-						selected. */}
-						</div>
+									})
+								) : (
+									<TableRow>
+										<TableCell colSpan={columns.length} className="h-24 text-center">
+											No results.
+										</TableCell>
+									</TableRow>
+								)}
+							</TableBody>
+						</Table>
 					</div>
-					<div className="text-[#8A8F96]">
-						Rows per page
-						<select
-							className="ml-2 bg-transparent font-medium text-black"
-							value={table.getState().pagination.pageSize}
-							onChange={(e) => {
-								table.setPageSize(Number(e.target.value));
-							}}>
-							{[6, 10, 20, 30].map((pageSize) => (
-								<option key={pageSize} value={pageSize}>
-									{pageSize}
-								</option>
-							))}
-						</select>
+					<div className="flex items-center justify-between space-x-2 py-4">
+						<div className="flex items-center space-x-2">
+							<div className="space-x-2">
+								<button onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>
+									<ChevronLeft />
+								</button>
+								<button onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
+									<ChevronRight />
+								</button>
+							</div>
+							<div className="flex-1 text-sm text-muted-foreground">
+								{table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1}-
+								{data.length <=
+								(table.getState().pagination.pageIndex + 1) * table.getState().pagination.pageSize
+									? data.length
+									: (table.getState().pagination.pageIndex + 1) * table.getState().pagination.pageSize}{" "}
+								of {data.length} results
+								{/* {table.getFilteredSelectedRowModel().rows.length} of {table.getFilteredRowModel().rows.length} row(s)
+						selected. */}
+							</div>
+						</div>
+						<div className="text-[#8A8F96]">
+							Rows per page
+							<select
+								className="ml-2 bg-transparent font-medium text-black"
+								value={table.getState().pagination.pageSize}
+								onChange={(e) => {
+									table.setPageSize(Number(e.target.value));
+								}}>
+								{[6, 10, 20, 30].map((pageSize) => (
+									<option key={pageSize} value={pageSize}>
+										{pageSize}
+									</option>
+								))}
+							</select>
+						</div>
 					</div>
 				</div>
 			</div>
